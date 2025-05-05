@@ -1,0 +1,28 @@
+import sys
+import os
+import struct
+
+BLOCK_SIZE = 512
+MAGIC = b'4348PRJ3'
+DEGREE = 10
+MAX_KEYS = 2 * DEGREE - 1
+MAX_CHILDREN = 2 * DEGREE
+
+def int_to_bytes(n):
+    return n.to_bytes(8, 'big')
+
+def bytes_to_int(b):
+    return int.from_bytes(b, 'big')
+
+def pad_block(data):
+    return data + b'\x00' * (BLOCK_SIZE - len(data))
+
+
+class BTreeNode:
+    def __init__(self, block_id=0, parent=0, keys=None, values=None, children=None):
+        self.block_id = block_id
+        self.parent = parent
+        self.keys = keys or []
+        self.values = values or []
+        self.children = children or [0] * MAX_CHILDREN
+        
