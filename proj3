@@ -35,3 +35,12 @@ class BTreeNode:
         b += b''.join([int_to_bytes(v) for v in self.values] + [b'\x00' * 8] * (MAX_KEYS - len(self.values)))
         b += b''.join([int_to_bytes(c) for c in self.children])
         return pad_block(b)
+
+    def from_bytes(data):
+        block_id = bytes_to_int(data[0:8])
+        parent = bytes_to_int(data[8:16])
+        num_keys = bytes_to_int(data[16:24])
+        keys = [bytes_to_int(data[24+i*8:32+i*8]) for i in range(MAX_KEYS)]
+        values = [bytes_to_int(data[176+i*8:184+i*8]) for i in range(MAX_KEYS)]
+        children = [bytes_to_int(data[328+i*8:336+i*8]) for i in range(MAX_CHILDREN)]
+        return BTreeNode(block_id, parent, keys[:num_keys], values[:num_keys], children)
