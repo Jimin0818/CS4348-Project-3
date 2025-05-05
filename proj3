@@ -26,3 +26,12 @@ class BTreeNode:
         self.values = values or []
         self.children = children or [0] * MAX_CHILDREN
         
+     def to_bytes(self):
+        b = int_to_bytes(self.block_id)
+        b += int_to_bytes(self.parent)
+        b += int_to_bytes(len(self.keys))
+
+        b += b''.join([int_to_bytes(k) for k in self.keys] + [b'\x00' * 8] * (MAX_KEYS - len(self.keys)))
+        b += b''.join([int_to_bytes(v) for v in self.values] + [b'\x00' * 8] * (MAX_KEYS - len(self.values)))
+        b += b''.join([int_to_bytes(c) for c in self.children])
+        return pad_block(b)
