@@ -44,3 +44,11 @@ class BTreeNode:
         values = [bytes_to_int(data[176+i*8:184+i*8]) for i in range(MAX_KEYS)]
         children = [bytes_to_int(data[328+i*8:336+i*8]) for i in range(MAX_CHILDREN)]
         return BTreeNode(block_id, parent, keys[:num_keys], values[:num_keys], children)
+
+    def read_block(file, block_id):
+        file.seek(block_id * BLOCK_SIZE)
+        return file.read(BLOCK_SIZE)
+
+    def write_block(file, block_id, data):
+        file.seek(block_id * BLOCK_SIZE)
+        file.write(data)
