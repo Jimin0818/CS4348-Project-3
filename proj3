@@ -70,3 +70,44 @@ class BTreeNode:
         root = bytes_to_int(header[8:16])
         next_block = bytes_to_int(header[16:24])
         return root, next_block
+    def write_header(file, root, next_block):
+    file.seek(0)
+    header = MAGIC + int_to_bytes(root) + int_to_bytes(next_block)
+    file.write(pad_block(header))
+
+    def insert_key(filename, key, value):
+        key = int(key)
+        value = int(value)
+        with open(filename, 'r+b') as f:
+            root_id, next_block = read_header(f)
+    
+            if root_id == 0:
+                root_node = BTreeNode(block_id=1)
+                root_node.keys.append(key)
+                root_node.values.append(value)
+                write_block(f, 1, root_node.to_bytes())
+                write_header(f, root=1, next_block=2)
+                print("Inserted into new root.")
+                return
+    
+            root_block = read_block(f, root_id)
+            root_node = BTreeNode.from_bytes(root_block)
+    
+            # Simple insertion (no split)
+            if len(root_node.keys) >= MAX_KEYS:
+                print("Error: Root node full. Splitting not yet implemented.")
+                return
+    
+            i = 0
+            while i < len(root_node.keys) and key > root_node.keys[i]:
+                i += 1
+    
+            if i < len(root_node.keys) and root_node.keys[i] == key:
+                print("Error: Duplicate key.")
+                return
+    
+            root_node.keys.insert(i, key)
+            root_node.values.insert(i, value)
+    
+            write_block(f, root_node.block_id, root_node.to_bytes())
+            print("Inserted into root.")
