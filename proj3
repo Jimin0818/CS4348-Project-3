@@ -52,3 +52,21 @@ class BTreeNode:
     def write_block(file, block_id, data):
         file.seek(block_id * BLOCK_SIZE)
         file.write(data)
+
+    def create_index(filename):
+        if os.path.exists(filename):
+            print("Error: File already exists.")
+            return
+        with open(filename, 'wb') as f:
+            header = MAGIC + int_to_bytes(0) + int_to_bytes(1)
+            f.write(pad_block(header))
+        print(f"{filename} created.")
+
+    def read_header(file):
+        file.seek(0)
+        header = file.read(BLOCK_SIZE)
+        if header[:8] != MAGIC:
+            raise Exception("Invalid index file")
+        root = bytes_to_int(header[8:16])
+        next_block = bytes_to_int(header[16:24])
+        return root, next_block
