@@ -111,3 +111,25 @@ class BTreeNode:
     
             write_block(f, root_node.block_id, root_node.to_bytes())
             print("Inserted into root.")
+
+    if __name__ == '__main__':
+    args = sys.argv
+    if len(args) < 3:
+        print("Usage: project3 <command> <filename> [args...]")
+        sys.exit(1)
+
+    cmd = args[1]
+    if cmd == 'create':
+        create_index(args[2])
+    elif cmd == 'insert':
+        if len(args) < 5:
+            print("Usage: project3 insert <file> <key> <value>")
+        else:
+            insert_key(args[2], args[3], args[4])
+    elif cmd == 'search':
+        if len(args) < 4:
+            print("Usage: project3 search <file> <key>")
+        else:
+            search_key(args[2], args[3])
+    else:
+        print(f"Unknown command: {cmd}")
