@@ -19,20 +19,20 @@ This project implements a command line B Tree index file manager using Python. I
 
 ## Command Examples
 
-# Create a new index file
+Create a new index file
 python project3.py create test.idx
 
-# Insert a key-value pair
-python project3.py insert test.idx 15 100
+Insert a key value pair
+python project3.py insert test.idx 20 100
 
-# Search for a key
+Search for a key
 python project3.py search test.idx 15
 
-# Bulk insert from CSV
+Bulk insert from CSV
 python project3.py load test.idx input.csv
 
-# Print the entire tree contents
+Print the entire tree contents
 python project3.py print test.idx
 
-# Export tree contents to a CSV file
+Export tree contents to a CSV file
 python project3.py extract test.idx output.csv
