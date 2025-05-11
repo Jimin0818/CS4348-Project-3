@@ -9,7 +9,7 @@ This project implements a command line B Tree index file manager using Python. I
 - File-backed index using fixed 512-byte blocks
 - Supports up to 3 B-Tree nodes in memory at a time
 - Big-endian 8-byte integer serialization
-- Command-line interface with the following operations:
+
   - create — Create a new index file
   - insert — Insert a single key/value pair
   - search — Search for a key and display its value
