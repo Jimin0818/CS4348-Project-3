@@ -221,6 +221,21 @@ def load_csv(filename, csv_filename):
             key_str, value_str = line.strip().split(',', 1)
             insert_key(filename, key_str, value_str)
 
+def print_node(f, node):
+    if all(c == 0 for c in node.children):
+        for k, v in zip(node.keys, node.values):
+            print(f"{k} -> {v}")
+        return
+
+    for i in range(len(node.keys)):
+        if node.children[i] != 0:
+            child = BTreeNode.from_bytes(read_block(f, node.children[i]))
+            print_node(f, child)
+        print(f"{node.keys[i]} -> {node.values[i]}")
+    if node.children[len(node.keys)] != 0:
+        child = BTreeNode.from_bytes(read_block(f, node.children[len(node.keys)]))
+        print_node(f, child)
+
 def print_index(filename):
     with open(filename, 'rb') as f:
         root_id, _ = read_header(f)
@@ -230,7 +245,8 @@ def print_index(filename):
         root = BTreeNode.from_bytes(read_block(f, root_id))
         print_node(f, root)
 
-   def extract_csv(indexfile, out_csv):
+
+def extract_csv(indexfile, out_csv):
     if os.path.exists(out_csv):
         print("Error: Output file already exists.")
         return
@@ -279,4 +295,3 @@ if __name__ == '__main__':
             extract_csv(args[2], args[3])
     else:
         print(f"Unknown command: {cmd}")
-
