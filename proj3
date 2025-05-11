@@ -2,7 +2,7 @@ import sys
 import os
 import struct
 
-# Constants
+#Constants
 BLOCK_SIZE = 512
 MAGIC = b'4348PRJ3'
 DEGREE = 10
@@ -10,27 +10,28 @@ MAX_KEYS = 2 * DEGREE - 1
 MAX_CHILDREN = 2 * DEGREE
 
 
-# Utility Functions
+#Utility Functions
 def int_to_bytes(n):
-    return n.to_bytes(8, 'big')
+    return n.to_bytes(8, 'big')  #Convert int to 8-byte big-endian
 
 def bytes_to_int(b):
-    return int.from_bytes(b, 'big')
+    return int.from_bytes(b, 'big')  #Convert 8-byte big-endian to int
 
 def pad_block(data):
-    return data + b'\x00' * (BLOCK_SIZE - len(data))
+    return data + b'\x00' * (BLOCK_SIZE - len(data))  
 
 
-# B-tree Node Definition
+#B-tree Node Definition
 class BTreeNode:
     def __init__(self, block_id=0, parent=0, keys=None, values=None, children=None):
         self.block_id = block_id
         self.parent = parent
         self.keys = keys or []
         self.values = values or []
-        self.children = children or [0] * MAX_CHILDREN
+        self.children = children or [0] * MAX_CHILDREN  #Initialize with zeros
 
     def to_bytes(self):
+        #Serialize the node to bytes for writing to file
         b = int_to_bytes(self.block_id)
         b += int_to_bytes(self.parent)
         b += int_to_bytes(len(self.keys))
@@ -41,6 +42,7 @@ class BTreeNode:
 
     @staticmethod
     def from_bytes(data):
+        #Deserialize bytes back into a BTreeNode
         block_id = bytes_to_int(data[0:8])
         parent = bytes_to_int(data[8:16])
         num_keys = bytes_to_int(data[16:24])
@@ -50,7 +52,7 @@ class BTreeNode:
         return BTreeNode(block_id, parent, keys[:num_keys], values[:num_keys], children)
 
 
-# File Operations
+#File I/O Helpers
 def read_block(file, block_id):
     file.seek(block_id * BLOCK_SIZE)
     return file.read(BLOCK_SIZE)
@@ -74,7 +76,7 @@ def write_header(file, root, next_block):
     file.write(pad_block(header))
 
 
-# Core Index Operations
+#Initialize index file
 def create_index(filename):
     if os.path.exists(filename):
         print("Error: File already exists.")
@@ -85,8 +87,9 @@ def create_index(filename):
     print(f"{filename} created.")
 
 
-# Tree Modifications
+#Insert and Split Operations
 def split_child(f, parent, index, child, next_block):
+    #Split a full child node into two
     mid = DEGREE - 1
     right = BTreeNode(
         block_id=next_block,
@@ -110,6 +113,7 @@ def split_child(f, parent, index, child, next_block):
     write_block(f, child.block_id, child.to_bytes())
     write_block(f, right.block_id, right.to_bytes())
     write_block(f, parent.block_id, parent.to_bytes())
+
     _, nb = read_header(f)
     write_header(f, root=read_header(f)[0], next_block=nb + 1)
 
@@ -117,6 +121,7 @@ def split_child(f, parent, index, child, next_block):
 
 
 def insert_into_node(f, node, key, value, next_block):
+    #Recursive insert into node or its children
     if all(c == 0 for c in node.children[:len(node.keys)+1]):
         i = 0
         while i < len(node.keys) and key > node.keys[i]:
@@ -147,6 +152,7 @@ def insert_into_node(f, node, key, value, next_block):
 
 
 def insert_key(filename, key, value):
+    #Entry point to insert a new key-value pair
     key = int(key)
     value = int(value)
     with open(filename, 'r+b') as f:
@@ -170,6 +176,7 @@ def insert_key(filename, key, value):
 
 
 def split_root(file, root_node, next_block):
+    #Split root node when it becomes full
     mid = DEGREE - 1
     left = BTreeNode(
         block_id=next_block,
@@ -199,7 +206,7 @@ def split_root(file, root_node, next_block):
     print(f"Root split: new root = {new_root.block_id}, children = {left.block_id}, {right.block_id}")
 
 
-# Search and Print
+#Search & Traversal
 def search_node(f, node, key):
     i = 0
     while i < len(node.keys) and key > node.keys[i]:
@@ -223,6 +230,7 @@ def search_key(filename, key):
         search_node(f, root, key)
 
 def print_node(f, node):
+    #In-order traversal for printing all key-value pairs
     for i in range(len(node.keys)):
         if node.children[i] != 0:
             print_node(f, BTreeNode.from_bytes(read_block(f, node.children[i])))
@@ -239,8 +247,9 @@ def print_index(filename):
         print_node(f, BTreeNode.from_bytes(read_block(f, root_id)))
 
 
-# CSV Integration
+
 def load_csv(index_file, csv_file):
+    #Load key-value pairs from a CSV file
     if not os.path.exists(csv_file):
         print("Error: CSV file does not exist.")
         return
@@ -251,6 +260,7 @@ def load_csv(index_file, csv_file):
                 insert_key(index_file, key, val)
 
 def extract_csv(index_file, out_file):
+    #Extract current tree contents to a CSV file
     if os.path.exists(out_file):
         print("Error: Output file already exists.")
         return
@@ -265,7 +275,7 @@ def extract_csv(index_file, out_file):
                 out.write(f"{k},{v}\n")
 
 
-# Command-Line Interface
+#Command  
 if __name__ == '__main__':
     args = sys.argv
     if len(args) < 3:
