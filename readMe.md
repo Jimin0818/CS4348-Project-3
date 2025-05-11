@@ -10,16 +10,15 @@ This project implements a command line B Tree index file manager using Python. I
 - Supports up to 3 B-Tree nodes in memory at a time
 - Big-endian 8-byte integer serialization
 - Command-line interface with the following operations:
-  - `create` — Create a new index file
-  - `insert` — Insert a single key/value pair
-  - `search` — Search for a key and display its value
-  - `load` — Load key/value pairs from a CSV file
-  - `print` — Print all key/value pairs
-  - `extract` — Export all key/value pairs to a CSV
+  - create — Create a new index file
+  - insert — Insert a single key/value pair
+  - search — Search for a key and display its value
+  - load — Load key/value pairs from a CSV file
+  - print — Print all key/value pairs
+  - extract — Export all key/value pairs to a CSV
 
 ## Command Examples
 
-```bash
 # Create a new index file
 python project3.py create test.idx
 
